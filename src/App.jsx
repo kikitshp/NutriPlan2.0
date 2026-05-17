@@ -220,14 +220,13 @@ export default function App() {
   function handleKey(e) { if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();} }
  
   // ── SCAN ──
-  async function handleImageSelect(file) {
-    if (!file) return;
-    setScanResult(null); setScanError(null); setScanAdded(false);
-    setScanPreview(URL.createObjectURL(file));
-    const b64 = await fileToBase64(file);
-    setScanImage(b64);
-  }
- 
+ async function handleImageSelect(file) {
+  if (!file) return;
+  setScanResult(null); setScanError(null); setScanAdded(false);
+  setScanPreview(URL.createObjectURL(file));
+  const b64 = await fileToBase64(file);
+  setScanImage({ data: b64, type: file.type || "image/jpeg" });
+}
   async function analyzeScan() {
     if (!scanImage || scanLoading) return;
     if (!apiKey) { setShowKeyInput(true); return; }
@@ -240,7 +239,7 @@ export default function App() {
           model:"claude-sonnet-4-20250514",
           max_tokens:600,
           messages:[{ role:"user", content:[
-            { type:"image", source:{ type:"base64", media_type:"image/jpeg", data:scanImage } },
+            { type:"image", source:{ type:"base64", media_type: scanImage.type, data: scanImage.data } },
             { type:"text",  text: SCAN_PROMPT }
           ]}]
         })
