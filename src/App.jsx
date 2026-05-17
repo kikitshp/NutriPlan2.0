@@ -234,21 +234,18 @@ function getTodayKey() {
   const d = new Date();
   return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
 }
-function getBaseMacros(dayName) {
-  return PLAN_BASE[dayName].comidas.reduce((a,c) => ({
-    proteinas:a.proteinas+c.proteinas, carbos:a.carbos+c.carbos,
-    grasas:a.grasas+c.grasas, calorias:a.calorias+c.calorias
-  }), { proteinas:0, carbos:0, grasas:0, calorias:0 });
+function getBaseMacros() {
+  return { proteinas:0, carbos:0, grasas:0, calorias:0 };
 }
-function loadDayData(dayName) {
+function loadDayData() {
   try {
     const saved = localStorage.getItem("nutriplan_day_"+getTodayKey());
     if (saved) {
       const data = JSON.parse(saved);
-      return { macros:data.macros||getBaseMacros(dayName), modificaciones:data.modificaciones||[], ejercicios:data.ejercicios||{} };
+      return { macros:data.macros||getBaseMacros(), modificaciones:data.modificaciones||[], ejercicios:data.ejercicios||{} };
     }
   } catch(e) {}
-  return { macros:getBaseMacros(dayName), modificaciones:[], ejercicios:{} };
+  return { macros:getBaseMacros(), modificaciones:[], ejercicios:{} };
 }
 function saveDayData(macros, modificaciones, ejercicios) {
   try {
@@ -259,7 +256,7 @@ function saveDayData(macros, modificaciones, ejercicios) {
 
 export default function App() {
   const today = getTodayName();
-  const initialData = loadDayData(today);
+  const initialData = loadDayData();
 
   const [selectedDay, setSelectedDay] = useState(today);
   const [tab, setTab] = useState("plan");
@@ -688,7 +685,7 @@ export default function App() {
         <div style={{ padding:"17px 13px 100px" }} className="fade-in">
           <div style={{ background:"white", borderRadius:15, padding:"19px 17px", boxShadow:"0 2px 14px rgba(0,0,0,0.05)", marginBottom:13 }}>
             <div style={{ fontSize:8, letterSpacing:2, textTransform:"uppercase", color:DIA_COLORS[today].accent, fontWeight:700, marginBottom:3 }}>Macros de hoy — {today}</div>
-            <div style={{ fontSize:10, color:"#ccc", marginBottom:15 }}>Plan base + extras escaneados o del chat</div>
+            <div style={{ fontSize:10, color:"#ccc", marginBottom:15 }}>Lo que has registrado hoy — foto o chat</div>
             <MacroBar label="Proteínas"     value={dailyMacros.proteinas} max={macroTarget.proteinas} color="#C97B5A" />
             <MacroBar label="Carbohidratos" value={dailyMacros.carbos}    max={macroTarget.carbos}    color="#D4A847" />
             <MacroBar label="Grasas"        value={dailyMacros.grasas}    max={macroTarget.grasas}    color="#7A9E7E" />
