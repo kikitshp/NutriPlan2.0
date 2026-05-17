@@ -220,12 +220,31 @@ export default function App() {
   function handleKey(e) { if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();} }
  
   // ── SCAN ──
- async function handleImageSelect(file) {
+async function handleImageSelect(file) {
   if (!file) return;
   setScanResult(null); setScanError(null); setScanAdded(false);
   setScanPreview(URL.createObjectURL(file));
-  const b64 = await fileToBase64(file);
-  setScanImage({ data: b64, type: file.type || "image/jpeg" });
+
+  try {
+    // Convierte cualquier formato (HEIC, PNG, WEBP, etc) a JPEG
+    // Funciona en Mac, Android e iPhone
+    const bitmap = await createImageBitmap(file);
+    const canvas = document.createElement("canvas");
+    // Reduce resolución si es muy grande (acelera el envío)
+    const maxSize = 1200;
+    const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height));
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.85));
+    const b64 = await fileToBase64(blob);
+    setScanImage({ data: b64, type: "image/jpeg" });
+  } catch(e) {
+    // Fallback si canvas falla
+    const b64 = await fileToBase64(file);
+    setScanImage({ data: b64, type: "image/jpeg" });
+  }
 }
   async function analyzeScan() {
     if (!scanImage || scanLoading) return;
