@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-
+ 
 // ─── PLAN BASE ────────────────────────────────────────────────────────────────
 const PLAN_BASE = {
   Lunes:     { entrenamiento: "Tren Superior — Pecho, Espalda & Brazos", comidas: [
@@ -38,7 +38,7 @@ const PLAN_BASE = {
     { tiempo: "Cena",     desc: "Quinoa con huevo revuelto y queso gouda", proteinas: 24, carbos: 38, grasas: 12, calorias: 356 },
   ]},
 };
-
+ 
 const DIAS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 const DIA_COLORS = {
   Lunes:     { bg:"#fdf2ec", accent:"#C97B5A", light:"#fae6d8" },
@@ -49,17 +49,17 @@ const DIA_COLORS = {
   Sábado:    { bg:"#fdf0f1", accent:"#C06870", light:"#fad8da" },
   Domingo:   { bg:"#edf5ee", accent:"#7A9E7E", light:"#d8edd9" },
 };
-
+ 
 const SYSTEM_PROMPT = `Eres una nutrióloga y personal trainer experta que asiste a una usuaria específica.
-
+ 
 PERFIL:
 - Mujer, 40 años, 3 hijos, 1 adulta mayor en casa
 - Meta: bajar 5 kg y construir músculo (glúteos y brazos)
 - Ayuno hasta el almuerzo (16/8), creatina 5g/día, sin trotar
 - Ingredientes habituales: huevos, arroz, tallarín, pan, pollo, carne molida, pulpa de pierna, trucha, atún, leche descremada, queso gouda, jamón, yogurt, frutas, quinoa
-
+ 
 OBJETIVO MACROS DIARIO: Proteínas 100-120g, Carbos 100-140g, Grasas 40-55g, Calorías 1400-1600 kcal
-
+ 
 TU ROL:
 - Cuando la usuaria diga que cambió algo, calcula macros y actualiza
 - Si comió algo fuera del plan, no juzgues, solo calcula
@@ -67,16 +67,16 @@ TU ROL:
   [MACROS: proteinas=XX, carbos=XX, grasas=XX, calorias=XX]
 - Si es solo consulta sin cambio de alimento, no incluyas [MACROS]
 - Responde en español, breve, cálido y práctico.`;
-
+ 
 const SCAN_PROMPT = `Eres una nutrióloga experta en análisis visual de alimentos. Analiza esta imagen de comida y estima los macronutrientes.
-
+ 
 INSTRUCCIONES:
 1. Identifica todos los alimentos visibles en el plato
 2. Estima las porciones visualmente (tamaño del plato como referencia)
 3. Calcula macros totales del plato completo
 4. Sé realista con las porciones — no subestimes ni sobreestimes
 5. Considera métodos de cocción visibles (frito, hervido, a la plancha)
-
+ 
 RESPONDE EXACTAMENTE en este formato JSON, sin texto adicional:
 {
   "alimentos": ["alimento 1", "alimento 2"],
@@ -89,7 +89,7 @@ RESPONDE EXACTAMENTE en este formato JSON, sin texto adicional:
   "confianza": "alta|media|baja",
   "nota": "Observación breve sobre la estimación"
 }`;
-
+ 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
 function getTodayName() {
   return ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"][new Date().getDay()];
@@ -99,7 +99,7 @@ function parseMacros(text) {
   return m ? { proteinas:+m[1], carbos:+m[2], grasas:+m[3], calorias:+m[4] } : null;
 }
 function cleanReply(text) { return text.replace(/\[MACROS:.*?\]/gi,"").trim(); }
-
+ 
 function fileToBase64(file) {
   return new Promise((res, rej) => {
     const r = new FileReader();
@@ -108,7 +108,7 @@ function fileToBase64(file) {
     r.readAsDataURL(file);
   });
 }
-
+ 
 // ─── COMPONENTES ─────────────────────────────────────────────────────────────
 function MacroBar({ label, value, max, color, unit="g" }) {
   const pct = Math.min(100, Math.round((value/max)*100));
@@ -128,7 +128,7 @@ function MacroBar({ label, value, max, color, unit="g" }) {
     </div>
   );
 }
-
+ 
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const today = getTodayName();
@@ -142,7 +142,7 @@ export default function App() {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem("anthropic_key") || "");
   const [showKeyInput, setShowKeyInput] = useState(false);
   const [modificaciones, setModificaciones] = useState([]);
-
+ 
   // Estado escáner
   const [scanImage, setScanImage] = useState(null);      // base64
   const [scanPreview, setScanPreview] = useState(null);  // object URL
@@ -151,7 +151,7 @@ export default function App() {
   const [scanError, setScanError] = useState(null);
   const [scanAdded, setScanAdded] = useState(false);
   const fileInputRef = useRef(null);
-
+ 
   const [dailyMacros, setDailyMacros] = useState(() => {
     const plan = PLAN_BASE[today];
     return plan.comidas.reduce((a,c) => ({
@@ -159,11 +159,11 @@ export default function App() {
       grasas: a.grasas+c.grasas, calorias: a.calorias+c.calorias
     }), { proteinas:0, carbos:0, grasas:0, calorias:0 });
   });
-
+ 
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior:"smooth" }); }, [messages]);
-
+ 
   const plan = PLAN_BASE[selectedDay];
   const color = DIA_COLORS[selectedDay];
   const planMacros = plan.comidas.reduce((a,c) => ({
@@ -171,7 +171,7 @@ export default function App() {
     grasas:a.grasas+c.grasas, calorias:a.calorias+c.calorias
   }), {proteinas:0,carbos:0,grasas:0,calorias:0});
   const macroTarget = { proteinas:110, carbos:120, grasas:48, calorias:1500 };
-
+ 
   function addMacrosToDay(macros) {
     setDailyMacros(prev => ({
       proteinas: prev.proteinas + macros.proteinas,
@@ -180,13 +180,13 @@ export default function App() {
       calorias:  prev.calorias  + macros.calorias,
     }));
   }
-
+ 
   function saveApiKey(key) {
     localStorage.setItem("anthropic_key", key);
     setApiKey(key);
     setShowKeyInput(false);
   }
-
+ 
   // ── CHAT ──
   async function sendMessage() {
     if (!input.trim() || loading) return;
@@ -218,7 +218,7 @@ export default function App() {
     setLoading(false);
   }
   function handleKey(e) { if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();} }
-
+ 
   // ── SCAN ──
   async function handleImageSelect(file) {
     if (!file) return;
@@ -227,7 +227,7 @@ export default function App() {
     const b64 = await fileToBase64(file);
     setScanImage(b64);
   }
-
+ 
   async function analyzeScan() {
     if (!scanImage || scanLoading) return;
     if (!apiKey) { setShowKeyInput(true); return; }
@@ -256,7 +256,7 @@ export default function App() {
     }
     setScanLoading(false);
   }
-
+ 
   function confirmAddScan() {
     if (!scanResult) return;
     const macros = { proteinas:scanResult.proteinas, carbos:scanResult.carbos, grasas:scanResult.grasas, calorias:scanResult.calorias };
@@ -264,13 +264,13 @@ export default function App() {
     setModificaciones(prev=>[...prev,{ dia:today, descripcion:`📷 ${scanResult.descripcion}`, ...macros }]);
     setScanAdded(true);
   }
-
+ 
   function resetScan() {
     setScanImage(null); setScanPreview(null); setScanResult(null); setScanError(null); setScanAdded(false);
   }
-
+ 
   const confianzaColor = { alta:"#7A9E7E", media:"#D4A847", baja:"#C97B5A" };
-
+ 
   // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
     <div style={{ minHeight:"100vh", background:"#FAF6F0", fontFamily:"'DM Sans','Segoe UI',sans-serif", color:"#1C1410", maxWidth:480, margin:"0 auto" }}>
@@ -306,7 +306,7 @@ export default function App() {
         .btn-green:hover{opacity:0.88;}
         .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;margin-right:8px;vertical-align:middle;}
       `}</style>
-
+ 
       {/* ── HEADER ── */}
       <div style={{ background:"#1C1410", color:"#FAF6F0", padding:`calc(env(safe-area-inset-top,0px) + 18px) 18px 0` }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:13 }}>
@@ -327,7 +327,7 @@ export default function App() {
             </button>
           </div>
         </div>
-
+ 
         {showKeyInput && (
           <div style={{ background:"rgba(255,255,255,0.06)", borderRadius:11, padding:"11px 13px", marginBottom:12 }} className="fade-in">
             <div style={{ fontSize:9, color:"#a89880", marginBottom:7, letterSpacing:1 }}>ANTHROPIC API KEY</div>
@@ -342,7 +342,7 @@ export default function App() {
             <div style={{ fontSize:9, color:"#5a4a38", marginTop:6 }}>console.anthropic.com → API Keys</div>
           </div>
         )}
-
+ 
         {/* TABS — ahora con 📷 */}
         <div style={{ display:"flex", gap:5, paddingBottom:13, overflowX:"auto" }}>
           {[["plan","📋 Plan"],["macros","📊 Macros"],["scan","📷 Escanear"],["chat","💬 Chat"]].map(([id,label]) => (
@@ -353,7 +353,7 @@ export default function App() {
           ))}
         </div>
       </div>
-
+ 
       {/* ── DAY SELECTOR ── */}
       {(tab==="plan"||tab==="macros") && (
         <div style={{ padding:"11px 13px 3px", overflowX:"auto" }}>
@@ -371,7 +371,7 @@ export default function App() {
           </div>
         </div>
       )}
-
+ 
       {/* ══ TAB: PLAN ══ */}
       {tab==="plan" && (
         <div style={{ padding:"13px 13px 100px" }} className="fade-in">
@@ -382,7 +382,7 @@ export default function App() {
               <div style={{ fontSize:12, color:"#5C4A3A", marginTop:1 }}>{plan.entrenamiento}</div>
             </div>
           </div>
-
+ 
           <div style={{ background:"white", borderRadius:15, padding:"3px 17px 7px", boxShadow:"0 2px 14px rgba(0,0,0,0.05)", marginBottom:13 }}>
             {plan.comidas.map((c,i) => (
               <div key={i} style={{ padding:"11px 0", borderBottom:i<plan.comidas.length-1?"1px dashed #e8e0d8":"none" }}>
@@ -404,7 +404,7 @@ export default function App() {
               </div>
             ))}
           </div>
-
+ 
           <div style={{ background:`linear-gradient(135deg,${color.bg},${color.light})`, border:`1px solid ${color.accent}33`, borderRadius:13, padding:"13px 15px", marginBottom:13 }}>
             <div style={{ fontSize:8, letterSpacing:2, textTransform:"uppercase", color:color.accent, fontWeight:700, marginBottom:9 }}>Total — {selectedDay}</div>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:5 }}>
@@ -418,7 +418,7 @@ export default function App() {
               ))}
             </div>
           </div>
-
+ 
           {modificaciones.filter(m=>m.dia===selectedDay).length>0 && (
             <div>
               <div style={{ fontSize:8, letterSpacing:2, textTransform:"uppercase", color:"#5C4A3A", fontWeight:700, marginBottom:7 }}>✏️ Extras registrados</div>
@@ -436,7 +436,7 @@ export default function App() {
           )}
         </div>
       )}
-
+ 
       {/* ══ TAB: MACROS ══ */}
       {tab==="macros" && (
         <div style={{ padding:"17px 13px 100px" }} className="fade-in">
@@ -448,7 +448,7 @@ export default function App() {
             <MacroBar label="Grasas"        value={dailyMacros.grasas}    max={macroTarget.grasas}    color="#7A9E7E" />
             <MacroBar label="Calorías"      value={dailyMacros.calorias}  max={macroTarget.calorias}  color="#8AAEC5" unit=" kcal" />
           </div>
-
+ 
           <div style={{ background:"#1C1410", borderRadius:15, padding:"17px", color:"#FAF6F0", marginBottom:13 }}>
             <div style={{ fontSize:8, letterSpacing:2, textTransform:"uppercase", color:"#C97B5A", fontWeight:700, marginBottom:11 }}>Tu objetivo diario</div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:9 }}>
@@ -462,14 +462,14 @@ export default function App() {
               ))}
             </div>
           </div>
-
+ 
           <div style={{ background:"linear-gradient(135deg,#fdf2ec,#fae8d5)", border:"1px solid #C97B5A44", borderRadius:11, padding:"13px 15px" }}>
             <div style={{ fontSize:12.5, fontWeight:600, color:"#C97B5A", marginBottom:4 }}>⚡ Creatina hoy</div>
             <div style={{ fontSize:12, color:"#5C4A3A", lineHeight:1.6 }}>5g en un vaso de agua, cualquier hora del día. Aunque no entrenes, tómala igual.</div>
           </div>
         </div>
       )}
-
+ 
       {/* ══ TAB: SCAN ══ */}
       {tab==="scan" && (
         <div style={{ padding:"16px 13px 100px" }} className="fade-in">
@@ -479,7 +479,7 @@ export default function App() {
           <p style={{ fontSize:13, color:"#7a6a5a", lineHeight:1.6, marginBottom:16 }}>
             Saca una foto a tu plato o sube una imagen y la IA calculará los macros automáticamente para agregarlos a tu día.
           </p>
-
+ 
           {/* Zona de upload */}
           {!scanPreview ? (
             <div>
@@ -492,11 +492,11 @@ export default function App() {
               <input ref={fileInputRef} type="file" accept="image/*"
                 style={{ display:"none" }}
                 onChange={e=>e.target.files[0]&&handleImageSelect(e.target.files[0])} />
-
+ 
               <button className="btn-primary" style={{ marginBottom:10 }} onClick={()=>{ fileInputRef.current.value=""; fileInputRef.current.click(); }}>
                 📷 Cámara o galería
               </button>
-
+ 
               <div className="upload-zone" style={{ marginTop:16 }} onClick={()=>fileInputRef.current.click()}>
                 <div style={{ fontSize:36, marginBottom:10 }}>🍽</div>
                 <div style={{ fontSize:13, fontWeight:600, color:"#5C4A3A", marginBottom:5 }}>O arrastra una foto aquí</div>
@@ -516,14 +516,14 @@ export default function App() {
                   </button>
                 )}
               </div>
-
+ 
               {/* Botón analizar */}
               {!scanResult && !scanLoading && (
                 <button className="btn-primary" onClick={analyzeScan}>
                   🔍 Analizar plato y calcular macros
                 </button>
               )}
-
+ 
               {/* Loading */}
               {scanLoading && (
                 <div style={{ background:"white", borderRadius:14, padding:"20px", textAlign:"center", boxShadow:"0 2px 14px rgba(0,0,0,0.06)" }}>
@@ -536,7 +536,7 @@ export default function App() {
                   <div style={{ fontSize:11, color:"#bbb", marginTop:4 }}>Identificando alimentos y calculando macros</div>
                 </div>
               )}
-
+ 
               {/* Error */}
               {scanError && (
                 <div style={{ background:"#fdf0f0", border:"1px solid #e0a0a0", borderRadius:12, padding:"14px 16px", marginBottom:12 }}>
@@ -546,7 +546,7 @@ export default function App() {
                   </button>
                 </div>
               )}
-
+ 
               {/* Resultado */}
               {scanResult && (
                 <div className="fade-in">
@@ -564,7 +564,7 @@ export default function App() {
                         </div>
                       </div>
                     </div>
-
+ 
                     <div style={{ padding:"14px 16px" }}>
                       {/* Alimentos identificados */}
                       <div style={{ marginBottom:12 }}>
@@ -575,7 +575,7 @@ export default function App() {
                           ))}
                         </div>
                       </div>
-
+ 
                       {/* Macros */}
                       <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, marginBottom:12 }}>
                         {[["🥩","Proteínas",scanResult.proteinas,"g","#C97B5A"],["🌾","Carbos",scanResult.carbos,"g","#D4A847"],["🫒","Grasas",scanResult.grasas,"g","#7A9E7E"],["🔥","Calorías",scanResult.calorias,"","#8AAEC5"]].map(([ico,lbl,val,unit,clr])=>(
@@ -587,7 +587,7 @@ export default function App() {
                           </div>
                         ))}
                       </div>
-
+ 
                       {/* Porción y nota */}
                       <div style={{ background:"#f9f5f0", borderRadius:10, padding:"10px 12px", marginBottom:4 }}>
                         <div style={{ fontSize:11, color:"#7a6a5a", lineHeight:1.5 }}>
@@ -599,7 +599,7 @@ export default function App() {
                       </div>
                     </div>
                   </div>
-
+ 
                   {/* Botones acción */}
                   {!scanAdded ? (
                     <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
@@ -628,7 +628,7 @@ export default function App() {
           )}
         </div>
       )}
-
+ 
       {/* ══ TAB: CHAT ══ */}
       {tab==="chat" && (
         <div style={{ display:"flex", flexDirection:"column", height:"calc(100vh - 108px)" }} className="fade-in">
@@ -639,7 +639,7 @@ export default function App() {
               ))}
             </div>
           </div>
-
+ 
           <div style={{ flex:1, overflowY:"auto", padding:"10px 13px", display:"flex", flexDirection:"column", gap:9 }}>
             {messages.map((m,i)=>(
               <div key={i} style={{ display:"flex", justifyContent:m.role==="user"?"flex-end":"flex-start" }}>
@@ -675,7 +675,7 @@ export default function App() {
             )}
             <div ref={chatEndRef}/>
           </div>
-
+ 
           <div style={{ padding:"8px 13px",paddingBottom:`calc(env(safe-area-inset-bottom,0px) + 11px)`,background:"white",borderTop:"1px solid #f0ebe4",flexShrink:0 }}>
             {!apiKey && (
               <div style={{ background:"#fdf2ec",border:"1px solid #C97B5A44",borderRadius:9,padding:"7px 11px",marginBottom:7,fontSize:11.5,color:"#C97B5A" }}>
@@ -695,3 +695,4 @@ export default function App() {
     </div>
   );
 }
+ 
