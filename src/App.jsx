@@ -201,7 +201,7 @@ export default function App() {
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method:"POST",
         headers:{ "Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true" },
-        body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000, system:SYSTEM_PROMPT, messages:[...history,{role:"user",content:ctx}] })
+        body: JSON.stringify({ model:"claude-sonnet-4-5", max_tokens:1000, system:SYSTEM_PROMPT, messages:[...history,{role:"user",content:ctx}] })
       });
       if (!res.ok) throw new Error((await res.json()).error?.message || "Error API");
       const data = await res.json();
@@ -255,7 +255,7 @@ async function handleImageSelect(file) {
         method:"POST",
         headers:{ "Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true" },
         body: JSON.stringify({
-          model:"claude-sonnet-4-20250514",
+          model:"claude-sonnet-4-5",
           max_tokens:600,
           messages:[{ role:"user", content:[
             { type:"image", source:{ type:"base64", media_type: scanImage.type, data: scanImage.data } },
