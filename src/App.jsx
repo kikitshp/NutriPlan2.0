@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
- 
+
 // ─── PLAN ALIMENTACIÓN ────────────────────────────────────────────────────────
 const PLAN_BASE = {
   Lunes:     { entrenamiento: "Tren Superior — Pecho, Espalda & Brazos", comidas: [
@@ -38,7 +38,7 @@ const PLAN_BASE = {
     { tiempo:"Cena",     desc:"Quinoa con huevo revuelto y queso gouda", proteinas:24, carbos:38, grasas:12, calorias:356 },
   ]},
 };
- 
+
 // ─── PLAN EJERCICIOS ──────────────────────────────────────────────────────────
 const PLAN_EJERCICIOS = {
   Lunes: {
@@ -138,7 +138,7 @@ const PLAN_EJERCICIOS = {
     ejercicios: []
   },
 };
- 
+
 const DIAS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 const DIA_COLORS = {
   Lunes:     { bg:"#fdf2ec", accent:"#C97B5A", light:"#fae6d8" },
@@ -149,17 +149,17 @@ const DIA_COLORS = {
   Sábado:    { bg:"#fdf0f1", accent:"#C06870", light:"#fad8da" },
   Domingo:   { bg:"#edf5ee", accent:"#7A9E7E", light:"#d8edd9" },
 };
- 
+
 const SYSTEM_PROMPT = `Eres una nutrióloga y personal trainer experta que asiste a una usuaria específica.
- 
+
 PERFIL:
 - Mujer, 40 años, 3 hijos, 1 adulta mayor en casa
 - Meta: bajar 5 kg y construir músculo (glúteos y brazos)
 - Ayuno hasta el almuerzo (16/8), creatina 5g/día, sin trotar
 - Ingredientes habituales: huevos, arroz, tallarín, pan, pollo, carne molida, pulpa de pierna, trucha, atún, leche descremada, queso gouda, jamón, yogurt, frutas, quinoa
- 
+
 OBJETIVO MACROS DIARIO: Proteínas 100-120g, Carbos 100-140g, Grasas 40-55g, Calorías 1400-1600 kcal
- 
+
 TU ROL:
 - Cuando la usuaria diga que cambió algo, calcula macros y actualiza
 - Si comió algo fuera del plan, no juzgues, solo calcula
@@ -167,16 +167,16 @@ TU ROL:
   [MACROS: proteinas=XX, carbos=XX, grasas=XX, calorias=XX]
 - Si es solo consulta sin cambio de alimento, no incluyas [MACROS]
 - Responde en español, breve, cálido y práctico.`;
- 
+
 const SCAN_PROMPT = `Eres una nutrióloga experta en análisis visual de alimentos. Analiza esta imagen de comida y estima los macronutrientes.
- 
+
 INSTRUCCIONES:
 1. Identifica todos los alimentos visibles en el plato
 2. Estima las porciones visualmente (tamaño del plato como referencia)
 3. Calcula macros totales del plato completo
 4. Sé realista con las porciones
 5. Considera métodos de cocción visibles
- 
+
 RESPONDE EXACTAMENTE en este formato JSON, sin texto adicional:
 {
   "alimentos": ["alimento 1", "alimento 2"],
@@ -189,7 +189,7 @@ RESPONDE EXACTAMENTE en este formato JSON, sin texto adicional:
   "confianza": "alta|media|baja",
   "nota": "Observación breve sobre la estimación"
 }`;
- 
+
 // ─── UTILS ────────────────────────────────────────────────────────────────────
 function getTodayName() {
   return ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"][new Date().getDay()];
@@ -207,7 +207,7 @@ function fileToBase64(file) {
     r.readAsDataURL(file);
   });
 }
- 
+
 // ─── COMPONENTES ─────────────────────────────────────────────────────────────
 function MacroBar({ label, value, max, color, unit="g" }) {
   const pct = Math.min(100, Math.round((value/max)*100));
@@ -227,10 +227,40 @@ function MacroBar({ label, value, max, color, unit="g" }) {
     </div>
   );
 }
- 
+
 // ─── APP ──────────────────────────────────────────────────────────────────────
+// ─── STORAGE ─────────────────────────────────────────────────────────────────
+function getTodayKey() {
+  const d = new Date();
+  return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+}
+function getBaseMacros(dayName) {
+  return PLAN_BASE[dayName].comidas.reduce((a,c) => ({
+    proteinas:a.proteinas+c.proteinas, carbos:a.carbos+c.carbos,
+    grasas:a.grasas+c.grasas, calorias:a.calorias+c.calorias
+  }), { proteinas:0, carbos:0, grasas:0, calorias:0 });
+}
+function loadDayData(dayName) {
+  try {
+    const saved = localStorage.getItem("nutriplan_day_"+getTodayKey());
+    if (saved) {
+      const data = JSON.parse(saved);
+      return { macros:data.macros||getBaseMacros(dayName), modificaciones:data.modificaciones||[], ejercicios:data.ejercicios||{} };
+    }
+  } catch(e) {}
+  return { macros:getBaseMacros(dayName), modificaciones:[], ejercicios:{} };
+}
+function saveDayData(macros, modificaciones, ejercicios) {
+  try {
+    const key = "nutriplan_day_"+getTodayKey();
+    localStorage.setItem(key, JSON.stringify({ macros, modificaciones, ejercicios }));
+  } catch(e) {}
+}
+
 export default function App() {
   const today = getTodayName();
+  const initialData = loadDayData(today);
+
   const [selectedDay, setSelectedDay] = useState(today);
   const [tab, setTab] = useState("plan");
   const [messages, setMessages] = useState([
@@ -240,9 +270,9 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [apiKey, setApiKey] = useState(() => localStorage.getItem("anthropic_key") || "");
   const [showKeyInput, setShowKeyInput] = useState(false);
-  const [modificaciones, setModificaciones] = useState([]);
-  const [ejerciciosCompletados, setEjerciciosCompletados] = useState({});
- 
+  const [modificaciones, setModificaciones] = useState(initialData.modificaciones);
+  const [ejerciciosCompletados, setEjerciciosCompletados] = useState(initialData.ejercicios);
+
   // Scan state
   const [scanImage, setScanImage] = useState(null);
   const [scanPreview, setScanPreview] = useState(null);
@@ -251,19 +281,18 @@ export default function App() {
   const [scanError, setScanError] = useState(null);
   const [scanAdded, setScanAdded] = useState(false);
   const fileInputRef = useRef(null);
- 
-  const [dailyMacros, setDailyMacros] = useState(() => {
-    const plan = PLAN_BASE[today];
-    return plan.comidas.reduce((a,c) => ({
-      proteinas:a.proteinas+c.proteinas, carbos:a.carbos+c.carbos,
-      grasas:a.grasas+c.grasas, calorias:a.calorias+c.calorias
-    }), { proteinas:0, carbos:0, grasas:0, calorias:0 });
-  });
- 
+
+  const [dailyMacros, setDailyMacros] = useState(initialData.macros);
+
+  // Guardar automaticamente en localStorage cuando cambian datos del dia
+  useEffect(() => {
+    saveDayData(dailyMacros, modificaciones, ejerciciosCompletados);
+  }, [dailyMacros, modificaciones, ejerciciosCompletados]);
+
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior:"smooth" }); }, [messages]);
- 
+
   const plan = PLAN_BASE[selectedDay];
   const color = DIA_COLORS[selectedDay];
   const planMacros = plan.comidas.reduce((a,c) => ({
@@ -272,25 +301,25 @@ export default function App() {
   }), {proteinas:0,carbos:0,grasas:0,calorias:0});
   const macroTarget = { proteinas:110, carbos:120, grasas:48, calorias:1500 };
   const ejercicioHoy = PLAN_EJERCICIOS[selectedDay];
- 
+
   function addMacrosToDay(macros) {
     setDailyMacros(prev => ({
       proteinas:prev.proteinas+macros.proteinas, carbos:prev.carbos+macros.carbos,
       grasas:prev.grasas+macros.grasas, calorias:prev.calorias+macros.calorias,
     }));
   }
- 
+
   function saveApiKey(key) {
     localStorage.setItem("anthropic_key", key);
     setApiKey(key);
     setShowKeyInput(false);
   }
- 
+
   function toggleEjercicio(dia, idx) {
     const key = `${dia}-${idx}`;
     setEjerciciosCompletados(prev => ({ ...prev, [key]: !prev[key] }));
   }
- 
+
   // ── CHAT ──
   async function sendMessage() {
     if (!input.trim() || loading) return;
@@ -322,7 +351,7 @@ export default function App() {
     setLoading(false);
   }
   function handleKey(e) { if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();} }
- 
+
   // ── SCAN ──
   async function handleImageSelect(file) {
     if (!file) return;
@@ -345,7 +374,7 @@ export default function App() {
       setScanImage({ data:b64, type:"image/jpeg" });
     }
   }
- 
+
   async function analyzeScan() {
     if (!scanImage || scanLoading) return;
     if (!apiKey) { setShowKeyInput(true); return; }
@@ -373,7 +402,7 @@ export default function App() {
     }
     setScanLoading(false);
   }
- 
+
   function confirmAddScan() {
     if (!scanResult) return;
     const macros = { proteinas:scanResult.proteinas, carbos:scanResult.carbos, grasas:scanResult.grasas, calorias:scanResult.calorias };
@@ -381,13 +410,13 @@ export default function App() {
     setModificaciones(prev=>[...prev,{ dia:today, descripcion:`📷 ${scanResult.descripcion}`, ...macros }]);
     setScanAdded(true);
   }
- 
+
   function resetScan() {
     setScanImage(null); setScanPreview(null); setScanResult(null); setScanError(null); setScanAdded(false);
   }
- 
+
   const confianzaColor = { alta:"#7A9E7E", media:"#D4A847", baja:"#C97B5A" };
- 
+
   // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
     <div style={{ minHeight:"100vh", background:"#FAF6F0", fontFamily:"'DM Sans','Segoe UI',sans-serif", color:"#1C1410", maxWidth:480, margin:"0 auto" }}>
@@ -424,7 +453,7 @@ export default function App() {
         .ejercicio-row.done{opacity:0.45;}
         .check-box{width:22px;height:22px;border-radius:6px;border:2px solid;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;font-size:13px;}
       `}</style>
- 
+
       {/* ── HEADER ── */}
       <div style={{ background:"#1C1410", color:"#FAF6F0", padding:`calc(env(safe-area-inset-top,0px) + 16px) 16px 0` }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
@@ -445,7 +474,7 @@ export default function App() {
             </button>
           </div>
         </div>
- 
+
         {showKeyInput && (
           <div style={{ background:"rgba(255,255,255,0.06)", borderRadius:11, padding:"11px 13px", marginBottom:12 }} className="fade-in">
             <div style={{ fontSize:9, color:"#a89880", marginBottom:7, letterSpacing:1 }}>ANTHROPIC API KEY</div>
@@ -459,7 +488,7 @@ export default function App() {
             </div>
           </div>
         )}
- 
+
         {/* TABS */}
         <div style={{ display:"flex", gap:4, paddingBottom:12, overflowX:"auto" }}>
           {[["plan","📋 Plan"],["ejercicio","🏋️ Ejercicio"],["macros","📊 Macros"],["scan","📷 Foto"],["chat","💬 Chat"]].map(([id,label]) => (
@@ -470,7 +499,7 @@ export default function App() {
           ))}
         </div>
       </div>
- 
+
       {/* ── DAY SELECTOR ── */}
       {(tab==="plan"||tab==="macros"||tab==="ejercicio") && (
         <div style={{ padding:"10px 13px 3px", overflowX:"auto" }}>
@@ -488,7 +517,7 @@ export default function App() {
           </div>
         </div>
       )}
- 
+
       {/* ══ TAB: PLAN ══ */}
       {tab==="plan" && (
         <div style={{ padding:"13px 13px 100px" }} className="fade-in">
@@ -550,7 +579,7 @@ export default function App() {
           )}
         </div>
       )}
- 
+
       {/* ══ TAB: EJERCICIO ══ */}
       {tab==="ejercicio" && (
         <div style={{ padding:"13px 13px 100px" }} className="fade-in">
@@ -582,7 +611,7 @@ export default function App() {
               </div>
             </div>
           </div>
- 
+
           {/* Ejercicios */}
           {ejercicioHoy.ejercicios.length > 0 ? (
             <div>
@@ -608,7 +637,7 @@ export default function App() {
                   </div>
                 );
               })()}
- 
+
               <div style={{ background:"white", borderRadius:15, padding:"4px 16px 8px", boxShadow:"0 2px 14px rgba(0,0,0,0.05)" }}>
                 {ejercicioHoy.ejercicios.map((ej, i) => {
                   const key = `${selectedDay}-${i}`;
@@ -631,7 +660,7 @@ export default function App() {
                   );
                 })}
               </div>
- 
+
               <div style={{ background:"linear-gradient(135deg,#fdf2ec,#fae8d5)", border:"1px solid #C97B5A33", borderRadius:11, padding:"12px 14px", marginTop:12 }}>
                 <div style={{ fontSize:11, color:"#7a6a5a", lineHeight:1.6 }}>
                   💡 <strong>Toca cada ejercicio</strong> para marcarlo como completado. Descansa 60–90 seg entre series. Toma creatina antes o durante.
@@ -653,7 +682,7 @@ export default function App() {
           )}
         </div>
       )}
- 
+
       {/* ══ TAB: MACROS ══ */}
       {tab==="macros" && (
         <div style={{ padding:"17px 13px 100px" }} className="fade-in">
@@ -684,7 +713,7 @@ export default function App() {
           </div>
         </div>
       )}
- 
+
       {/* ══ TAB: SCAN ══ */}
       {tab==="scan" && (
         <div style={{ padding:"16px 13px 100px" }} className="fade-in">
@@ -786,7 +815,7 @@ export default function App() {
           )}
         </div>
       )}
- 
+
       {/* ══ TAB: CHAT ══ */}
       {tab==="chat" && (
         <div style={{ display:"flex", flexDirection:"column", height:"calc(100vh - 108px)" }} className="fade-in">
