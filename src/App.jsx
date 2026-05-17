@@ -1,42 +1,142 @@
 import { useState, useEffect, useRef } from "react";
  
-// ─── PLAN BASE ────────────────────────────────────────────────────────────────
+// ─── PLAN ALIMENTACIÓN ────────────────────────────────────────────────────────
 const PLAN_BASE = {
   Lunes:     { entrenamiento: "Tren Superior — Pecho, Espalda & Brazos", comidas: [
-    { tiempo: "Almuerzo", desc: "Quinoa con atún y verduras — ¾ taza quinoa, 1 lata atún, tomate, pepino, limón", proteinas: 35, carbos: 48, grasas: 8, calorias: 404 },
-    { tiempo: "Colación", desc: "2 huevos duros + fruta de temporada", proteinas: 14, carbos: 20, grasas: 10, calorias: 226 },
-    { tiempo: "Cena",     desc: "Omelette 3 huevos con queso gouda y espinaca + 1 tostada", proteinas: 28, carbos: 14, grasas: 20, calorias: 348 },
+    { tiempo:"Almuerzo", desc:"Quinoa con atún y verduras — ¾ taza quinoa, 1 lata atún, tomate, pepino, limón", proteinas:35, carbos:48, grasas:8, calorias:404 },
+    { tiempo:"Colación", desc:"2 huevos duros + fruta de temporada", proteinas:14, carbos:20, grasas:10, calorias:226 },
+    { tiempo:"Cena",     desc:"Omelette 3 huevos con queso gouda y espinaca + 1 tostada", proteinas:28, carbos:14, grasas:20, calorias:348 },
   ]},
   Martes:    { entrenamiento: "Tren Inferior — Glúteos, Cuádriceps & Femoral", comidas: [
-    { tiempo: "Almuerzo", desc: "Arroz con pulpa de pierna + ensalada lechuga tomate cebolla", proteinas: 38, carbos: 52, grasas: 10, calorias: 458 },
-    { tiempo: "Colación", desc: "1 yogurt natural + nueces o maní", proteinas: 10, carbos: 12, grasas: 12, calorias: 192 },
-    { tiempo: "Cena",     desc: "Sopa de verduras con pollo desmenuzado + pan", proteinas: 26, carbos: 30, grasas: 7, calorias: 291 },
+    { tiempo:"Almuerzo", desc:"Arroz con pulpa de pierna + ensalada lechuga tomate cebolla", proteinas:38, carbos:52, grasas:10, calorias:458 },
+    { tiempo:"Colación", desc:"1 yogurt natural + nueces o maní", proteinas:10, carbos:12, grasas:12, calorias:192 },
+    { tiempo:"Cena",     desc:"Sopa de verduras con pollo desmenuzado + pan", proteinas:26, carbos:30, grasas:7, calorias:291 },
   ]},
   Miércoles: { entrenamiento: "Descanso activo — Estiramiento 15 min", comidas: [
-    { tiempo: "Almuerzo", desc: "Tallarín con salsa italiana + trucha al horno + queso gouda", proteinas: 36, carbos: 58, grasas: 12, calorias: 484 },
-    { tiempo: "Colación", desc: "2 huevos revueltos con tomate", proteinas: 14, carbos: 4, grasas: 10, calorias: 162 },
-    { tiempo: "Cena",     desc: "Ensalada grande: lechuga, tomate, atún, huevo duro, queso gouda", proteinas: 38, carbos: 8, grasas: 16, calorias: 328 },
+    { tiempo:"Almuerzo", desc:"Tallarín con salsa italiana + trucha al horno + queso gouda", proteinas:36, carbos:58, grasas:12, calorias:484 },
+    { tiempo:"Colación", desc:"2 huevos revueltos con tomate", proteinas:14, carbos:4, grasas:10, calorias:162 },
+    { tiempo:"Cena",     desc:"Ensalada grande: lechuga, tomate, atún, huevo duro, queso gouda", proteinas:38, carbos:8, grasas:16, calorias:328 },
   ]},
   Jueves:    { entrenamiento: "Full Body — Fuerza completa + Core", comidas: [
-    { tiempo: "Almuerzo", desc: "Quinoa + molida salteada con cebolla, tomate y ajo", proteinas: 36, carbos: 44, grasas: 14, calorias: 446 },
-    { tiempo: "Colación", desc: "Fruta + 2 huevos duros", proteinas: 14, carbos: 20, grasas: 10, calorias: 226 },
-    { tiempo: "Cena",     desc: "3 huevos a la plancha + jamón pierna + ensalada espinaca", proteinas: 32, carbos: 6, grasas: 16, calorias: 296 },
+    { tiempo:"Almuerzo", desc:"Quinoa + molida salteada con cebolla, tomate y ajo", proteinas:36, carbos:44, grasas:14, calorias:446 },
+    { tiempo:"Colación", desc:"Fruta + 2 huevos duros", proteinas:14, carbos:20, grasas:10, calorias:226 },
+    { tiempo:"Cena",     desc:"3 huevos a la plancha + jamón pierna + ensalada espinaca", proteinas:32, carbos:6, grasas:16, calorias:296 },
   ]},
   Viernes:   { entrenamiento: "Glúteos & Hombros — Énfasis glúteos + definición", comidas: [
-    { tiempo: "Almuerzo", desc: "Arroz + pechuga de pollo a la plancha + verduras de feria al vapor", proteinas: 40, carbos: 50, grasas: 8, calorias: 436 },
-    { tiempo: "Colación", desc: "Gelatina diet + 2 huevos duros", proteinas: 14, carbos: 4, grasas: 10, calorias: 162 },
-    { tiempo: "Cena",     desc: "Sopa de campo con quinoa + huevo batido al final", proteinas: 22, carbos: 36, grasas: 8, calorias: 308 },
+    { tiempo:"Almuerzo", desc:"Arroz + pechuga de pollo a la plancha + verduras de feria al vapor", proteinas:40, carbos:50, grasas:8, calorias:436 },
+    { tiempo:"Colación", desc:"Gelatina diet + 2 huevos duros", proteinas:14, carbos:4, grasas:10, calorias:162 },
+    { tiempo:"Cena",     desc:"Sopa de campo con quinoa + huevo batido al final", proteinas:22, carbos:36, grasas:8, calorias:308 },
   ]},
   Sábado:    { entrenamiento: "Descanso — Día flexible con familia", comidas: [
-    { tiempo: "Almuerzo", desc: "Flexible con la familia — prioriza proteína primero, luego el plato familiar", proteinas: 28, carbos: 45, grasas: 14, calorias: 418 },
-    { tiempo: "Antojo",   desc: "Si quieres algo dulce con los niños: hazlo sin culpa", proteinas: 2, carbos: 25, grasas: 8, calorias: 176 },
-    { tiempo: "Cena",     desc: "Huevos, atún o queso + algo de feria. Volver al plato proteico.", proteinas: 26, carbos: 8, grasas: 14, calorias: 258 },
+    { tiempo:"Almuerzo", desc:"Flexible con la familia — prioriza proteína primero, luego el plato familiar", proteinas:28, carbos:45, grasas:14, calorias:418 },
+    { tiempo:"Antojo",   desc:"Si quieres algo dulce con los niños: hazlo sin culpa", proteinas:2, carbos:25, grasas:8, calorias:176 },
+    { tiempo:"Cena",     desc:"Huevos, atún o queso + algo de feria. Volver al plato proteico.", proteinas:26, carbos:8, grasas:14, calorias:258 },
   ]},
   Domingo:   { entrenamiento: "Descanso total — Tiempo en familia", comidas: [
-    { tiempo: "Almuerzo", desc: "Almuerzo familiar — come con conciencia: proteína + verdura primero", proteinas: 28, carbos: 40, grasas: 12, calorias: 376 },
-    { tiempo: "Tarde",    desc: "Leche descremada con café o té + fruta", proteinas: 8, carbos: 18, grasas: 2, calorias: 122 },
-    { tiempo: "Cena",     desc: "Quinoa con huevo revuelto y queso gouda", proteinas: 24, carbos: 38, grasas: 12, calorias: 356 },
+    { tiempo:"Almuerzo", desc:"Almuerzo familiar — come con conciencia: proteína + verdura primero", proteinas:28, carbos:40, grasas:12, calorias:376 },
+    { tiempo:"Tarde",    desc:"Leche descremada con café o té + fruta", proteinas:8, carbos:18, grasas:2, calorias:122 },
+    { tiempo:"Cena",     desc:"Quinoa con huevo revuelto y queso gouda", proteinas:24, carbos:38, grasas:12, calorias:356 },
   ]},
+};
+ 
+// ─── PLAN EJERCICIOS ──────────────────────────────────────────────────────────
+const PLAN_EJERCICIOS = {
+  Lunes: {
+    tipo: "entrenamiento",
+    titulo: "Tren Superior",
+    subtitulo: "Pecho, Espalda & Brazos",
+    color: "#C97B5A",
+    duracion: "45 min",
+    estructura: "3 min calentamiento → 37 min entrenamiento → 5 min estiramiento",
+    ejercicios: [
+      { nombre:"Press de banca con barra", series:"4", reps:"10", descanso:"90 seg", musculo:"Pecho" },
+      { nombre:"Remo con mancuerna 1 brazo", series:"3", reps:"12 c/u", descanso:"60 seg", musculo:"Espalda" },
+      { nombre:"Press militar mancuernas", series:"3", reps:"12", descanso:"60 seg", musculo:"Hombros" },
+      { nombre:"Curl de bíceps barra", series:"3", reps:"12", descanso:"60 seg", musculo:"Bíceps" },
+      { nombre:"Tríceps con cintas", series:"3", reps:"15", descanso:"60 seg", musculo:"Tríceps" },
+      { nombre:"Plancha abdominal", series:"3", reps:"40 seg", descanso:"45 seg", musculo:"Core" },
+    ]
+  },
+  Martes: {
+    tipo: "entrenamiento",
+    titulo: "Tren Inferior",
+    subtitulo: "Glúteos, Cuádriceps & Femoral",
+    color: "#7A9E7E",
+    duracion: "45 min",
+    estructura: "3 min calentamiento → 37 min entrenamiento → 5 min estiramiento",
+    ejercicios: [
+      { nombre:"Sentadilla con barra", series:"4", reps:"12", descanso:"90 seg", musculo:"Cuádriceps" },
+      { nombre:"Hip thrust con barra ⭐", series:"4", reps:"15", descanso:"90 seg", musculo:"Glúteos" },
+      { nombre:"Zancadas con mancuernas", series:"3", reps:"10 c/u", descanso:"60 seg", musculo:"Glúteos/Cuád." },
+      { nombre:"Peso muerto mancuernas", series:"3", reps:"12", descanso:"60 seg", musculo:"Femoral" },
+      { nombre:"Abducción con cintas tumbada", series:"3", reps:"20", descanso:"45 seg", musculo:"Glúteos" },
+      { nombre:"Elevación de talones", series:"3", reps:"20", descanso:"30 seg", musculo:"Gemelos" },
+    ]
+  },
+  Miércoles: {
+    tipo: "descanso",
+    titulo: "Descanso Activo",
+    subtitulo: "Recuperación y movilidad",
+    color: "#D4A847",
+    duracion: "15 min",
+    estructura: "Estiramiento suave + caminata si puedes",
+    ejercicios: [
+      { nombre:"Estiramiento glúteos (paloma)", series:"2", reps:"40 seg c/u", descanso:"—", musculo:"Glúteos" },
+      { nombre:"Estiramiento isquiotibiales", series:"2", reps:"40 seg c/u", descanso:"—", musculo:"Femoral" },
+      { nombre:"Estiramiento hombros/espalda", series:"2", reps:"30 seg c/u", descanso:"—", musculo:"Espalda" },
+      { nombre:"Rotación de cadera", series:"2", reps:"10 c/lado", descanso:"—", musculo:"Cadera" },
+    ]
+  },
+  Jueves: {
+    tipo: "entrenamiento",
+    titulo: "Full Body",
+    subtitulo: "Fuerza completa + Core",
+    color: "#C97B5A",
+    duracion: "45 min",
+    estructura: "3 min calentamiento → 37 min entrenamiento → 5 min estiramiento",
+    ejercicios: [
+      { nombre:"Sentadilla goblet mancuerna", series:"4", reps:"12", descanso:"90 seg", musculo:"Piernas/Glúteos" },
+      { nombre:"Remo con barra", series:"3", reps:"10", descanso:"60 seg", musculo:"Espalda" },
+      { nombre:"Press mancuernas alterno", series:"3", reps:"12", descanso:"60 seg", musculo:"Pecho/Hombros" },
+      { nombre:"Hip thrust unilateral", series:"3", reps:"12 c/u", descanso:"60 seg", musculo:"Glúteos" },
+      { nombre:"Curl martillo mancuernas", series:"3", reps:"12", descanso:"60 seg", musculo:"Bíceps" },
+      { nombre:"Mountain climbers lentos", series:"3", reps:"30 seg", descanso:"45 seg", musculo:"Core" },
+    ]
+  },
+  Viernes: {
+    tipo: "entrenamiento",
+    titulo: "Glúteos & Hombros",
+    subtitulo: "Énfasis glúteos + definición",
+    color: "#8AAEC5",
+    duracion: "45 min",
+    estructura: "3 min calentamiento → 37 min entrenamiento → 5 min estiramiento",
+    ejercicios: [
+      { nombre:"Hip thrust con barra ⭐", series:"5", reps:"15", descanso:"90 seg", musculo:"Glúteos" },
+      { nombre:"Sentadilla sumo mancuerna", series:"4", reps:"15", descanso:"60 seg", musculo:"Glúteos/Aductores" },
+      { nombre:"Elevaciones laterales", series:"4", reps:"15", descanso:"60 seg", musculo:"Hombros" },
+      { nombre:"Patada de glúteo con cintas", series:"3", reps:"20 c/u", descanso:"45 seg", musculo:"Glúteos" },
+      { nombre:"Press Arnold mancuernas", series:"3", reps:"12", descanso:"60 seg", musculo:"Hombros" },
+      { nombre:"Plancha lateral", series:"3", reps:"30 seg c/u", descanso:"45 seg", musculo:"Core/Oblicuos" },
+    ]
+  },
+  Sábado: {
+    tipo: "descanso",
+    titulo: "Descanso Completo",
+    subtitulo: "Tiempo en familia 💛",
+    color: "#C06870",
+    duracion: "—",
+    estructura: "El descanso es parte del entrenamiento. El músculo crece cuando descansas.",
+    ejercicios: []
+  },
+  Domingo: {
+    tipo: "descanso",
+    titulo: "Descanso Completo",
+    subtitulo: "Recarga para la semana 🌿",
+    color: "#7A9E7E",
+    duracion: "—",
+    estructura: "Hidratación, buena comida y descanso. Mañana empezamos con todo.",
+    ejercicios: []
+  },
 };
  
 const DIAS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
@@ -74,8 +174,8 @@ INSTRUCCIONES:
 1. Identifica todos los alimentos visibles en el plato
 2. Estima las porciones visualmente (tamaño del plato como referencia)
 3. Calcula macros totales del plato completo
-4. Sé realista con las porciones — no subestimes ni sobreestimes
-5. Considera métodos de cocción visibles (frito, hervido, a la plancha)
+4. Sé realista con las porciones
+5. Considera métodos de cocción visibles
  
 RESPONDE EXACTAMENTE en este formato JSON, sin texto adicional:
 {
@@ -99,7 +199,6 @@ function parseMacros(text) {
   return m ? { proteinas:+m[1], carbos:+m[2], grasas:+m[3], calorias:+m[4] } : null;
 }
 function cleanReply(text) { return text.replace(/\[MACROS:.*?\]/gi,"").trim(); }
- 
 function fileToBase64(file) {
   return new Promise((res, rej) => {
     const r = new FileReader();
@@ -117,13 +216,13 @@ function MacroBar({ label, value, max, color, unit="g" }) {
     <div style={{ marginBottom:12 }}>
       <div style={{ display:"flex", justifyContent:"space-between", fontSize:11, fontWeight:600, marginBottom:5, color:"#5C4A3A" }}>
         <span style={{ letterSpacing:1, textTransform:"uppercase" }}>{label}</span>
-        <span style={{ color: over ? "#e05050" : color }}>
+        <span style={{ color: over?"#e05050":color }}>
           {value}{unit} <span style={{ color:"#ccc", fontWeight:400 }}>/ {max}{unit}</span>
           {over && <span style={{ color:"#e05050", fontSize:9, marginLeft:4 }}>↑</span>}
         </span>
       </div>
       <div style={{ height:8, background:"#f0ebe4", borderRadius:99, overflow:"hidden" }}>
-        <div style={{ height:"100%", width:`${pct}%`, background: over ? "#e05050" : color, borderRadius:99, transition:"width 0.6s ease" }} />
+        <div style={{ height:"100%", width:`${pct}%`, background:over?"#e05050":color, borderRadius:99, transition:"width 0.6s ease" }} />
       </div>
     </div>
   );
@@ -135,18 +234,19 @@ export default function App() {
   const [selectedDay, setSelectedDay] = useState(today);
   const [tab, setTab] = useState("plan");
   const [messages, setMessages] = useState([
-    { role:"assistant", content:"¡Hola! 👋 Soy tu nutrióloga IA. Cuéntame qué cambió hoy o usa la pestaña 📷 para escanear tu plato y calcular los macros al instante." }
+    { role:"assistant", content:"¡Hola! 👋 Soy tu nutrióloga IA. Cuéntame qué cambió hoy o usa 📷 para escanear tu plato." }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [apiKey, setApiKey] = useState(() => localStorage.getItem("anthropic_key") || "");
   const [showKeyInput, setShowKeyInput] = useState(false);
   const [modificaciones, setModificaciones] = useState([]);
+  const [ejerciciosCompletados, setEjerciciosCompletados] = useState({});
  
-  // Estado escáner
-  const [scanImage, setScanImage] = useState(null);      // base64
-  const [scanPreview, setScanPreview] = useState(null);  // object URL
-  const [scanResult, setScanResult] = useState(null);    // parsed JSON
+  // Scan state
+  const [scanImage, setScanImage] = useState(null);
+  const [scanPreview, setScanPreview] = useState(null);
+  const [scanResult, setScanResult] = useState(null);
   const [scanLoading, setScanLoading] = useState(false);
   const [scanError, setScanError] = useState(null);
   const [scanAdded, setScanAdded] = useState(false);
@@ -155,8 +255,8 @@ export default function App() {
   const [dailyMacros, setDailyMacros] = useState(() => {
     const plan = PLAN_BASE[today];
     return plan.comidas.reduce((a,c) => ({
-      proteinas: a.proteinas+c.proteinas, carbos: a.carbos+c.carbos,
-      grasas: a.grasas+c.grasas, calorias: a.calorias+c.calorias
+      proteinas:a.proteinas+c.proteinas, carbos:a.carbos+c.carbos,
+      grasas:a.grasas+c.grasas, calorias:a.calorias+c.calorias
     }), { proteinas:0, carbos:0, grasas:0, calorias:0 });
   });
  
@@ -171,13 +271,12 @@ export default function App() {
     grasas:a.grasas+c.grasas, calorias:a.calorias+c.calorias
   }), {proteinas:0,carbos:0,grasas:0,calorias:0});
   const macroTarget = { proteinas:110, carbos:120, grasas:48, calorias:1500 };
+  const ejercicioHoy = PLAN_EJERCICIOS[selectedDay];
  
   function addMacrosToDay(macros) {
     setDailyMacros(prev => ({
-      proteinas: prev.proteinas + macros.proteinas,
-      carbos:    prev.carbos    + macros.carbos,
-      grasas:    prev.grasas    + macros.grasas,
-      calorias:  prev.calorias  + macros.calorias,
+      proteinas:prev.proteinas+macros.proteinas, carbos:prev.carbos+macros.carbos,
+      grasas:prev.grasas+macros.grasas, calorias:prev.calorias+macros.calorias,
     }));
   }
  
@@ -185,6 +284,11 @@ export default function App() {
     localStorage.setItem("anthropic_key", key);
     setApiKey(key);
     setShowKeyInput(false);
+  }
+ 
+  function toggleEjercicio(dia, idx) {
+    const key = `${dia}-${idx}`;
+    setEjerciciosCompletados(prev => ({ ...prev, [key]: !prev[key] }));
   }
  
   // ── CHAT ──
@@ -196,7 +300,7 @@ export default function App() {
     setMessages(prev => [...prev, { role:"user", content:userMsg }]);
     setLoading(true);
     try {
-      const ctx = `Contexto: día ${selectedDay}, macros acumulados hoy: P${dailyMacros.proteinas}g C${dailyMacros.carbos}g G${dailyMacros.grasas}g ${dailyMacros.calorias}kcal\n\nMensaje: ${userMsg}`;
+      const ctx = `Contexto: día ${selectedDay}, macros acumulados: P${dailyMacros.proteinas}g C${dailyMacros.carbos}g G${dailyMacros.grasas}g ${dailyMacros.calorias}kcal\n\nMensaje: ${userMsg}`;
       const history = messages.map(m => ({ role:m.role, content:m.content }));
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method:"POST",
@@ -220,32 +324,28 @@ export default function App() {
   function handleKey(e) { if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();} }
  
   // ── SCAN ──
-async function handleImageSelect(file) {
-  if (!file) return;
-  setScanResult(null); setScanError(null); setScanAdded(false);
-  setScanPreview(URL.createObjectURL(file));
-
-  try {
-    // Convierte cualquier formato (HEIC, PNG, WEBP, etc) a JPEG
-    // Funciona en Mac, Android e iPhone
-    const bitmap = await createImageBitmap(file);
-    const canvas = document.createElement("canvas");
-    // Reduce resolución si es muy grande (acelera el envío)
-    const maxSize = 1200;
-    const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height));
-    canvas.width = Math.round(bitmap.width * scale);
-    canvas.height = Math.round(bitmap.height * scale);
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.85));
-    const b64 = await fileToBase64(blob);
-    setScanImage({ data: b64, type: "image/jpeg" });
-  } catch(e) {
-    // Fallback si canvas falla
-    const b64 = await fileToBase64(file);
-    setScanImage({ data: b64, type: "image/jpeg" });
+  async function handleImageSelect(file) {
+    if (!file) return;
+    setScanResult(null); setScanError(null); setScanAdded(false);
+    setScanPreview(URL.createObjectURL(file));
+    try {
+      const bitmap = await createImageBitmap(file);
+      const canvas = document.createElement("canvas");
+      const maxSize = 1200;
+      const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height));
+      canvas.width = Math.round(bitmap.width * scale);
+      canvas.height = Math.round(bitmap.height * scale);
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.85));
+      const b64 = await fileToBase64(blob);
+      setScanImage({ data:b64, type:"image/jpeg" });
+    } catch(e) {
+      const b64 = await fileToBase64(file);
+      setScanImage({ data:b64, type:"image/jpeg" });
+    }
   }
-}
+ 
   async function analyzeScan() {
     if (!scanImage || scanLoading) return;
     if (!apiKey) { setShowKeyInput(true); return; }
@@ -258,8 +358,8 @@ async function handleImageSelect(file) {
           model:"claude-sonnet-4-5",
           max_tokens:600,
           messages:[{ role:"user", content:[
-            { type:"image", source:{ type:"base64", media_type: scanImage.type, data: scanImage.data } },
-            { type:"text",  text: SCAN_PROMPT }
+            { type:"image", source:{ type:"base64", media_type:scanImage.type, data:scanImage.data } },
+            { type:"text", text:SCAN_PROMPT }
           ]}]
         })
       });
@@ -267,10 +367,9 @@ async function handleImageSelect(file) {
       const data = await res.json();
       const raw = data.content?.map(b=>b.text||"").join("").trim() || "";
       const clean = raw.replace(/```json|```/g,"").trim();
-      const parsed = JSON.parse(clean);
-      setScanResult(parsed);
+      setScanResult(JSON.parse(clean));
     } catch(e) {
-      setScanError(e.message.includes("JSON") ? "No pude leer la imagen. Intenta con una foto más clara del plato." : e.message);
+      setScanError(e.message.includes("JSON") ? "No pude leer la imagen. Intenta con una foto más clara." : e.message);
     }
     setScanLoading(false);
   }
@@ -302,9 +401,8 @@ async function handleImageSelect(file) {
         .fade-in{animation:fadeUp 0.35s ease both;}
         @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        .tab-btn{padding:7px 13px;border-radius:99px;font-size:12px;font-weight:600;letter-spacing:0.5px;transition:all 0.2s;}
-        .day-pill{padding:6px 12px;border-radius:99px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.18s;white-space:nowrap;border:2px solid transparent;}
+        .tab-btn{padding:7px 11px;border-radius:99px;font-size:11px;font-weight:600;letter-spacing:0.3px;transition:all 0.2s;white-space:nowrap;}
+        .day-pill{padding:5px 11px;border-radius:99px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.18s;white-space:nowrap;border:2px solid transparent;}
         .send-btn{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#1C1410;color:#FAF6F0;font-size:17px;transition:transform 0.15s;flex-shrink:0;}
         .send-btn:hover{transform:scale(1.08);}
         .send-btn:disabled{background:#ccc;cursor:default;transform:none;}
@@ -313,24 +411,26 @@ async function handleImageSelect(file) {
         .msg-asst{background:white;color:#1C1410;border-bottom-left-radius:4px;box-shadow:0 1px 8px rgba(0,0,0,0.06);}
         .chip{padding:6px 12px;background:white;border:1px solid #e8ddd4;border-radius:99px;font-size:11px;color:#5C4A3A;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.04);cursor:pointer;}
         .chip:hover{background:#fdf2ec;}
-        .upload-zone{border:2px dashed #e8ddd4;border-radius:18px;padding:36px 20px;text-align:center;cursor:pointer;transition:all 0.2s;background:white;}
+        .upload-zone{border:2px dashed #e8ddd4;border-radius:18px;padding:32px 20px;text-align:center;cursor:pointer;transition:all 0.2s;background:white;}
         .upload-zone:hover{border-color:#C97B5A;background:#fdf2ec;}
         .btn-primary{background:#1C1410;color:#FAF6F0;border-radius:12px;padding:13px 20px;font-size:14px;font-weight:600;width:100%;transition:opacity 0.2s;}
         .btn-primary:hover{opacity:0.85;}
-        .btn-primary:disabled{background:#ccc;cursor:default;}
-        .btn-ghost{background:transparent;color:#C97B5A;border:1.5px solid #C97B5A;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:600;width:100%;transition:all 0.2s;}
+        .btn-ghost{background:transparent;color:#C97B5A;border:1.5px solid #C97B5A;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:600;width:100%;transition:all 0.2s;margin-top:8px;}
         .btn-ghost:hover{background:#fdf2ec;}
         .btn-green{background:#7A9E7E;color:white;border-radius:12px;padding:13px 20px;font-size:14px;font-weight:600;width:100%;transition:opacity 0.2s;}
         .btn-green:hover{opacity:0.88;}
-        .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;margin-right:8px;vertical-align:middle;}
+        .ejercicio-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed #e8e0d8;cursor:pointer;transition:opacity 0.2s;}
+        .ejercicio-row:last-child{border-bottom:none;}
+        .ejercicio-row.done{opacity:0.45;}
+        .check-box{width:22px;height:22px;border-radius:6px;border:2px solid;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;font-size:13px;}
       `}</style>
  
       {/* ── HEADER ── */}
-      <div style={{ background:"#1C1410", color:"#FAF6F0", padding:`calc(env(safe-area-inset-top,0px) + 18px) 18px 0` }}>
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:13 }}>
+      <div style={{ background:"#1C1410", color:"#FAF6F0", padding:`calc(env(safe-area-inset-top,0px) + 16px) 16px 0` }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
           <div>
             <div style={{ fontSize:9, letterSpacing:3, textTransform:"uppercase", color:"#C97B5A", marginBottom:2 }}>Plan personalizado</div>
-            <div style={{ fontFamily:"'Playfair Display',serif", fontSize:21, fontWeight:900, lineHeight:1 }}>
+            <div style={{ fontFamily:"'Playfair Display',serif", fontSize:20, fontWeight:900, lineHeight:1 }}>
               NutriPlan <span style={{ fontStyle:"italic", color:"#C97B5A" }}>IA</span>
             </div>
           </div>
@@ -357,13 +457,12 @@ async function handleImageSelect(file) {
                 Guardar
               </button>
             </div>
-            <div style={{ fontSize:9, color:"#5a4a38", marginTop:6 }}>console.anthropic.com → API Keys</div>
           </div>
         )}
  
-        {/* TABS — ahora con 📷 */}
-        <div style={{ display:"flex", gap:5, paddingBottom:13, overflowX:"auto" }}>
-          {[["plan","📋 Plan"],["macros","📊 Macros"],["scan","📷 Escanear"],["chat","💬 Chat"]].map(([id,label]) => (
+        {/* TABS */}
+        <div style={{ display:"flex", gap:4, paddingBottom:12, overflowX:"auto" }}>
+          {[["plan","📋 Plan"],["ejercicio","🏋️ Ejercicio"],["macros","📊 Macros"],["scan","📷 Foto"],["chat","💬 Chat"]].map(([id,label]) => (
             <button key={id} className="tab-btn" onClick={()=>setTab(id)}
               style={{ background:tab===id?"#FAF6F0":"rgba(255,255,255,0.07)", color:tab===id?"#1C1410":"#a89880", flexShrink:0 }}>
               {label}
@@ -373,8 +472,8 @@ async function handleImageSelect(file) {
       </div>
  
       {/* ── DAY SELECTOR ── */}
-      {(tab==="plan"||tab==="macros") && (
-        <div style={{ padding:"11px 13px 3px", overflowX:"auto" }}>
+      {(tab==="plan"||tab==="macros"||tab==="ejercicio") && (
+        <div style={{ padding:"10px 13px 3px", overflowX:"auto" }}>
           <div style={{ display:"flex", gap:6, minWidth:"max-content" }}>
             {DIAS.map(d => {
               const col=DIA_COLORS[d]; const isSel=selectedDay===d; const isToday=d===today;
@@ -400,7 +499,6 @@ async function handleImageSelect(file) {
               <div style={{ fontSize:12, color:"#5C4A3A", marginTop:1 }}>{plan.entrenamiento}</div>
             </div>
           </div>
- 
           <div style={{ background:"white", borderRadius:15, padding:"3px 17px 7px", boxShadow:"0 2px 14px rgba(0,0,0,0.05)", marginBottom:13 }}>
             {plan.comidas.map((c,i) => (
               <div key={i} style={{ padding:"11px 0", borderBottom:i<plan.comidas.length-1?"1px dashed #e8e0d8":"none" }}>
@@ -422,7 +520,6 @@ async function handleImageSelect(file) {
               </div>
             ))}
           </div>
- 
           <div style={{ background:`linear-gradient(135deg,${color.bg},${color.light})`, border:`1px solid ${color.accent}33`, borderRadius:13, padding:"13px 15px", marginBottom:13 }}>
             <div style={{ fontSize:8, letterSpacing:2, textTransform:"uppercase", color:color.accent, fontWeight:700, marginBottom:9 }}>Total — {selectedDay}</div>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:5 }}>
@@ -436,7 +533,6 @@ async function handleImageSelect(file) {
               ))}
             </div>
           </div>
- 
           {modificaciones.filter(m=>m.dia===selectedDay).length>0 && (
             <div>
               <div style={{ fontSize:8, letterSpacing:2, textTransform:"uppercase", color:"#5C4A3A", fontWeight:700, marginBottom:7 }}>✏️ Extras registrados</div>
@@ -455,6 +551,109 @@ async function handleImageSelect(file) {
         </div>
       )}
  
+      {/* ══ TAB: EJERCICIO ══ */}
+      {tab==="ejercicio" && (
+        <div style={{ padding:"13px 13px 100px" }} className="fade-in">
+          {/* Header del día */}
+          <div style={{ background:ejercicioHoy.tipo==="descanso"?"#f5f5f5":"#1C1410", borderRadius:16, padding:"18px", marginBottom:14,
+            background: ejercicioHoy.tipo==="descanso" ? `linear-gradient(135deg,${DIA_COLORS[selectedDay].bg},${DIA_COLORS[selectedDay].light})` : "#1C1410" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+              <div>
+                <div style={{ fontSize:9, letterSpacing:2, textTransform:"uppercase", color:ejercicioHoy.tipo==="descanso"?ejercicioHoy.color:"#C97B5A", fontWeight:700, marginBottom:4 }}>
+                  {ejercicioHoy.tipo==="descanso" ? "🧘 DESCANSO" : "💪 ENTRENAMIENTO"}
+                </div>
+                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:20, fontWeight:700, color:ejercicioHoy.tipo==="descanso"?"#1C1410":"white", lineHeight:1.1 }}>
+                  {ejercicioHoy.titulo}
+                </div>
+                <div style={{ fontSize:12, color:ejercicioHoy.tipo==="descanso"?"#7a6a5a":"#a89880", marginTop:4 }}>
+                  {ejercicioHoy.subtitulo}
+                </div>
+              </div>
+              {ejercicioHoy.duracion !== "—" && (
+                <div style={{ textAlign:"center", background:"rgba(255,255,255,0.1)", borderRadius:10, padding:"8px 12px" }}>
+                  <div style={{ fontSize:18, fontWeight:800, color:ejercicioHoy.tipo==="descanso"?ejercicioHoy.color:"#C97B5A" }}>{ejercicioHoy.duracion}</div>
+                  <div style={{ fontSize:8, color:ejercicioHoy.tipo==="descanso"?"#bbb":"#5a4a38" }}>TOTAL</div>
+                </div>
+              )}
+            </div>
+            <div style={{ marginTop:12, padding:"8px 12px", background:"rgba(255,255,255,0.07)", borderRadius:8 }}>
+              <div style={{ fontSize:11, color:ejercicioHoy.tipo==="descanso"?"#7a6a5a":"#a89880", lineHeight:1.5 }}>
+                📋 {ejercicioHoy.estructura}
+              </div>
+            </div>
+          </div>
+ 
+          {/* Ejercicios */}
+          {ejercicioHoy.ejercicios.length > 0 ? (
+            <div>
+              {/* Progreso */}
+              {(() => {
+                const total = ejercicioHoy.ejercicios.length;
+                const done = ejercicioHoy.ejercicios.filter((_,i)=>ejerciciosCompletados[`${selectedDay}-${i}`]).length;
+                const pct = Math.round((done/total)*100);
+                return (
+                  <div style={{ background:"white", borderRadius:12, padding:"12px 14px", marginBottom:12, boxShadow:"0 1px 8px rgba(0,0,0,0.05)" }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", fontSize:11, fontWeight:600, color:"#5C4A3A", marginBottom:7 }}>
+                      <span>Progreso de hoy</span>
+                      <span style={{ color:ejercicioHoy.color }}>{done}/{total} ejercicios</span>
+                    </div>
+                    <div style={{ height:6, background:"#f0ebe4", borderRadius:99, overflow:"hidden" }}>
+                      <div style={{ height:"100%", width:`${pct}%`, background:ejercicioHoy.color, borderRadius:99, transition:"width 0.4s ease" }} />
+                    </div>
+                    {done===total && total>0 && (
+                      <div style={{ textAlign:"center", marginTop:10, fontSize:13, fontWeight:700, color:"#7A9E7E" }}>
+                        🎉 ¡Entrenamiento completado!
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+ 
+              <div style={{ background:"white", borderRadius:15, padding:"4px 16px 8px", boxShadow:"0 2px 14px rgba(0,0,0,0.05)" }}>
+                {ejercicioHoy.ejercicios.map((ej, i) => {
+                  const key = `${selectedDay}-${i}`;
+                  const done = !!ejerciciosCompletados[key];
+                  return (
+                    <div key={i} className={`ejercicio-row${done?" done":""}`} onClick={()=>toggleEjercicio(selectedDay, i)}>
+                      <div className="check-box"
+                        style={{ borderColor:done?"#7A9E7E":ejercicioHoy.color, background:done?"#7A9E7E":"transparent", color:"white" }}>
+                        {done && "✓"}
+                      </div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:13, fontWeight:600, color:"#1C1410", marginBottom:2 }}>{ej.nombre}</div>
+                        <div style={{ fontSize:11, color:"#9a8a7a" }}>{ej.musculo}</div>
+                      </div>
+                      <div style={{ textAlign:"right", flexShrink:0 }}>
+                        <div style={{ fontSize:12, fontWeight:700, color:ejercicioHoy.color }}>{ej.series}×{ej.reps}</div>
+                        {ej.descanso !== "—" && <div style={{ fontSize:9, color:"#bbb" }}>⏱ {ej.descanso}</div>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+ 
+              <div style={{ background:"linear-gradient(135deg,#fdf2ec,#fae8d5)", border:"1px solid #C97B5A33", borderRadius:11, padding:"12px 14px", marginTop:12 }}>
+                <div style={{ fontSize:11, color:"#7a6a5a", lineHeight:1.6 }}>
+                  💡 <strong>Toca cada ejercicio</strong> para marcarlo como completado. Descansa 60–90 seg entre series. Toma creatina antes o durante.
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div style={{ textAlign:"center", padding:"40px 20px" }}>
+              <div style={{ fontSize:48, marginBottom:16 }}>{selectedDay==="Sábado"?"👨‍👩‍👧‍👦":"🌿"}</div>
+              <div style={{ fontSize:16, fontWeight:700, color:"#5C4A3A", marginBottom:8 }}>Día de descanso</div>
+              <div style={{ fontSize:13, color:"#9a8a7a", lineHeight:1.6 }}>
+                El músculo crece durante el descanso. Disfruta el día, hidrátatate bien y come bien. Mañana volvemos con todo. 💪
+              </div>
+              <div style={{ marginTop:20, background:"linear-gradient(135deg,#edf5ee,#d8edd9)", borderRadius:12, padding:"14px", border:"1px solid #7A9E7E44" }}>
+                <div style={{ fontSize:12, color:"#4a7a50", fontWeight:600 }}>⚡ Recuerda igual tu creatina hoy</div>
+                <div style={{ fontSize:11, color:"#7a9a7a", marginTop:4 }}>5g en un vaso de agua, todos los días sin excepción</div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+ 
       {/* ══ TAB: MACROS ══ */}
       {tab==="macros" && (
         <div style={{ padding:"17px 13px 100px" }} className="fade-in">
@@ -466,7 +665,6 @@ async function handleImageSelect(file) {
             <MacroBar label="Grasas"        value={dailyMacros.grasas}    max={macroTarget.grasas}    color="#7A9E7E" />
             <MacroBar label="Calorías"      value={dailyMacros.calorias}  max={macroTarget.calorias}  color="#8AAEC5" unit=" kcal" />
           </div>
- 
           <div style={{ background:"#1C1410", borderRadius:15, padding:"17px", color:"#FAF6F0", marginBottom:13 }}>
             <div style={{ fontSize:8, letterSpacing:2, textTransform:"uppercase", color:"#C97B5A", fontWeight:700, marginBottom:11 }}>Tu objetivo diario</div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:9 }}>
@@ -480,10 +678,9 @@ async function handleImageSelect(file) {
               ))}
             </div>
           </div>
- 
           <div style={{ background:"linear-gradient(135deg,#fdf2ec,#fae8d5)", border:"1px solid #C97B5A44", borderRadius:11, padding:"13px 15px" }}>
             <div style={{ fontSize:12.5, fontWeight:600, color:"#C97B5A", marginBottom:4 }}>⚡ Creatina hoy</div>
-            <div style={{ fontSize:12, color:"#5C4A3A", lineHeight:1.6 }}>5g en un vaso de agua, cualquier hora del día. Aunque no entrenes, tómala igual.</div>
+            <div style={{ fontSize:12, color:"#5C4A3A", lineHeight:1.6 }}>5g en un vaso de agua, cualquier hora. Aunque no entrenes, tómala igual.</div>
           </div>
         </div>
       )}
@@ -491,84 +688,50 @@ async function handleImageSelect(file) {
       {/* ══ TAB: SCAN ══ */}
       {tab==="scan" && (
         <div style={{ padding:"16px 13px 100px" }} className="fade-in">
-          <div style={{ fontSize:9, letterSpacing:2, textTransform:"uppercase", color:"#5C4A3A", fontWeight:700, marginBottom:10 }}>
-            📷 ESCANEAR PLATO
-          </div>
+          <div style={{ fontSize:9, letterSpacing:2, textTransform:"uppercase", color:"#5C4A3A", fontWeight:700, marginBottom:10 }}>📷 ESCANEAR PLATO</div>
           <p style={{ fontSize:13, color:"#7a6a5a", lineHeight:1.6, marginBottom:16 }}>
-            Saca una foto a tu plato o sube una imagen y la IA calculará los macros automáticamente para agregarlos a tu día.
+            Saca una foto a tu plato y la IA calculará los macros para agregarlos a tu día.
           </p>
- 
-          {/* Zona de upload */}
           {!scanPreview ? (
             <div>
-              {/*
-                UN solo input sin capture="environment":
-                - Android: muestra selector con "Cámara" y "Galería" nativo
-                - iPhone: muestra menú con "Tomar foto", "Biblioteca de fotos", "Archivos"
-                - No requiere ningún permiso explícito en la app, el OS lo maneja solo
-              */}
-              <input ref={fileInputRef} type="file" accept="image/*"
-                style={{ display:"none" }}
+              <input ref={fileInputRef} type="file" accept="image/*" style={{ display:"none" }}
                 onChange={e=>e.target.files[0]&&handleImageSelect(e.target.files[0])} />
- 
-              <button className="btn-primary" style={{ marginBottom:10 }} onClick={()=>{ fileInputRef.current.value=""; fileInputRef.current.click(); }}>
+              <button className="btn-primary" style={{ marginBottom:8 }} onClick={()=>{ fileInputRef.current.value=""; fileInputRef.current.click(); }}>
                 📷 Cámara o galería
               </button>
- 
-              <div className="upload-zone" style={{ marginTop:16 }} onClick={()=>fileInputRef.current.click()}>
-                <div style={{ fontSize:36, marginBottom:10 }}>🍽</div>
-                <div style={{ fontSize:13, fontWeight:600, color:"#5C4A3A", marginBottom:5 }}>O arrastra una foto aquí</div>
+              <div className="upload-zone" style={{ marginTop:14 }} onClick={()=>fileInputRef.current.click()}>
+                <div style={{ fontSize:34, marginBottom:10 }}>🍽</div>
+                <div style={{ fontSize:13, fontWeight:600, color:"#5C4A3A", marginBottom:4 }}>O arrastra una foto aquí</div>
                 <div style={{ fontSize:11, color:"#bbb" }}>JPEG, PNG, HEIC — máx. 5 MB</div>
               </div>
             </div>
           ) : (
             <div>
-              {/* Preview imagen */}
               <div style={{ borderRadius:16, overflow:"hidden", marginBottom:14, position:"relative" }}>
-                <img src={scanPreview} alt="Plato a analizar"
-                  style={{ width:"100%", maxHeight:260, objectFit:"cover", display:"block" }} />
+                <img src={scanPreview} alt="Plato" style={{ width:"100%", maxHeight:260, objectFit:"cover", display:"block" }} />
                 {!scanResult && !scanLoading && (
-                  <button onClick={resetScan}
-                    style={{ position:"absolute", top:10, right:10, width:30, height:30, borderRadius:"50%", background:"rgba(0,0,0,0.5)", color:"white", fontSize:16, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                    ✕
-                  </button>
+                  <button onClick={resetScan} style={{ position:"absolute", top:10, right:10, width:30, height:30, borderRadius:"50%", background:"rgba(0,0,0,0.5)", color:"white", fontSize:16, display:"flex", alignItems:"center", justifyContent:"center" }}>✕</button>
                 )}
               </div>
- 
-              {/* Botón analizar */}
               {!scanResult && !scanLoading && (
-                <button className="btn-primary" onClick={analyzeScan}>
-                  🔍 Analizar plato y calcular macros
-                </button>
+                <button className="btn-primary" onClick={analyzeScan}>🔍 Analizar y calcular macros</button>
               )}
- 
-              {/* Loading */}
               {scanLoading && (
                 <div style={{ background:"white", borderRadius:14, padding:"20px", textAlign:"center", boxShadow:"0 2px 14px rgba(0,0,0,0.06)" }}>
                   <div style={{ display:"flex", justifyContent:"center", gap:6, marginBottom:12 }}>
-                    {[0,1,2].map(j=>(
-                      <div key={j} style={{ width:8, height:8, borderRadius:"50%", background:"#C97B5A", animation:`bounce 0.9s ${j*0.15}s infinite` }} />
-                    ))}
+                    {[0,1,2].map(j=>(<div key={j} style={{ width:8, height:8, borderRadius:"50%", background:"#C97B5A", animation:`bounce 0.9s ${j*0.15}s infinite` }}/>))}
                   </div>
                   <div style={{ fontSize:13, color:"#7a6a5a" }}>Analizando tu plato...</div>
-                  <div style={{ fontSize:11, color:"#bbb", marginTop:4 }}>Identificando alimentos y calculando macros</div>
                 </div>
               )}
- 
-              {/* Error */}
               {scanError && (
                 <div style={{ background:"#fdf0f0", border:"1px solid #e0a0a0", borderRadius:12, padding:"14px 16px", marginBottom:12 }}>
                   <div style={{ fontSize:13, color:"#c05050" }}>⚠️ {scanError}</div>
-                  <button onClick={resetScan} style={{ marginTop:10, fontSize:12, color:"#C97B5A", background:"none", textDecoration:"underline" }}>
-                    Intentar con otra foto
-                  </button>
+                  <button onClick={resetScan} style={{ marginTop:10, fontSize:12, color:"#C97B5A", background:"none", textDecoration:"underline" }}>Intentar con otra foto</button>
                 </div>
               )}
- 
-              {/* Resultado */}
               {scanResult && (
                 <div className="fade-in">
-                  {/* Card resultado */}
                   <div style={{ background:"white", borderRadius:16, overflow:"hidden", boxShadow:"0 2px 16px rgba(0,0,0,0.07)", marginBottom:12 }}>
                     <div style={{ background:"#1C1410", padding:"13px 16px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                       <div>
@@ -577,26 +740,17 @@ async function handleImageSelect(file) {
                       </div>
                       <div style={{ textAlign:"right" }}>
                         <div style={{ fontSize:8, color:"#5a4a38", marginBottom:2 }}>CONFIANZA</div>
-                        <div style={{ fontSize:11, fontWeight:700, color:confianzaColor[scanResult.confianza]||"#C97B5A", textTransform:"uppercase" }}>
-                          {scanResult.confianza}
-                        </div>
+                        <div style={{ fontSize:11, fontWeight:700, color:confianzaColor[scanResult.confianza]||"#C97B5A", textTransform:"uppercase" }}>{scanResult.confianza}</div>
                       </div>
                     </div>
- 
                     <div style={{ padding:"14px 16px" }}>
-                      {/* Alimentos identificados */}
-                      <div style={{ marginBottom:12 }}>
-                        <div style={{ fontSize:9, letterSpacing:1.5, textTransform:"uppercase", color:"#bbb", fontWeight:600, marginBottom:6 }}>Alimentos identificados</div>
-                        <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
-                          {(scanResult.alimentos||[]).map((a,i)=>(
-                            <span key={i} style={{ background:"#f5f0ea", color:"#5C4A3A", padding:"3px 10px", borderRadius:99, fontSize:11.5 }}>{a}</span>
-                          ))}
-                        </div>
+                      <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginBottom:12 }}>
+                        {(scanResult.alimentos||[]).map((a,i)=>(
+                          <span key={i} style={{ background:"#f5f0ea", color:"#5C4A3A", padding:"3px 10px", borderRadius:99, fontSize:11.5 }}>{a}</span>
+                        ))}
                       </div>
- 
-                      {/* Macros */}
                       <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, marginBottom:12 }}>
-                        {[["🥩","Proteínas",scanResult.proteinas,"g","#C97B5A"],["🌾","Carbos",scanResult.carbos,"g","#D4A847"],["🫒","Grasas",scanResult.grasas,"g","#7A9E7E"],["🔥","Calorías",scanResult.calorias,"","#8AAEC5"]].map(([ico,lbl,val,unit,clr])=>(
+                        {[["🥩","Prot.",scanResult.proteinas,"g","#C97B5A"],["🌾","Carbos",scanResult.carbos,"g","#D4A847"],["🫒","Grasas",scanResult.grasas,"g","#7A9E7E"],["🔥","Kcal",scanResult.calorias,"","#8AAEC5"]].map(([ico,lbl,val,unit,clr])=>(
                           <div key={lbl} style={{ textAlign:"center", background:"#f9f5f0", borderRadius:10, padding:"10px 4px" }}>
                             <div style={{ fontSize:16 }}>{ico}</div>
                             <div style={{ fontSize:16, fontWeight:800, color:clr }}>{val}</div>
@@ -605,39 +759,25 @@ async function handleImageSelect(file) {
                           </div>
                         ))}
                       </div>
- 
-                      {/* Porción y nota */}
-                      <div style={{ background:"#f9f5f0", borderRadius:10, padding:"10px 12px", marginBottom:4 }}>
-                        <div style={{ fontSize:11, color:"#7a6a5a", lineHeight:1.5 }}>
-                          <span style={{ fontWeight:600 }}>Porción: </span>{scanResult.porcion}
-                        </div>
-                        {scanResult.nota && (
-                          <div style={{ fontSize:10.5, color:"#bbb", marginTop:4, lineHeight:1.5 }}>💡 {scanResult.nota}</div>
-                        )}
+                      <div style={{ background:"#f9f5f0", borderRadius:10, padding:"10px 12px" }}>
+                        <div style={{ fontSize:11, color:"#7a6a5a" }}><strong>Porción:</strong> {scanResult.porcion}</div>
+                        {scanResult.nota && <div style={{ fontSize:10.5, color:"#bbb", marginTop:4 }}>💡 {scanResult.nota}</div>}
                       </div>
                     </div>
                   </div>
- 
-                  {/* Botones acción */}
                   {!scanAdded ? (
-                    <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-                      <button className="btn-green" onClick={confirmAddScan}>
-                        ✅ Agregar a mis macros de hoy
-                      </button>
-                      <button className="btn-ghost" onClick={resetScan}>
-                        📷 Escanear otro plato
-                      </button>
+                    <div>
+                      <button className="btn-green" onClick={confirmAddScan}>✅ Agregar a mis macros de hoy</button>
+                      <button className="btn-ghost" onClick={resetScan}>📷 Escanear otro plato</button>
                     </div>
                   ) : (
                     <div>
                       <div style={{ background:"linear-gradient(135deg,#edf5ee,#d8edd9)", border:"1px solid #7A9E7E44", borderRadius:13, padding:"16px", textAlign:"center", marginBottom:10 }}>
                         <div style={{ fontSize:28, marginBottom:6 }}>✅</div>
                         <div style={{ fontSize:14, fontWeight:700, color:"#4a7a50" }}>¡Macros agregados!</div>
-                        <div style={{ fontSize:12, color:"#7a9a7a", marginTop:4 }}>Ve a 📊 Macros para ver tu progreso del día</div>
+                        <div style={{ fontSize:12, color:"#7a9a7a", marginTop:4 }}>Ve a 📊 Macros para ver tu progreso</div>
                       </div>
-                      <button className="btn-ghost" onClick={resetScan}>
-                        📷 Escanear otro plato
-                      </button>
+                      <button className="btn-ghost" onClick={resetScan}>📷 Escanear otro plato</button>
                     </div>
                   )}
                 </div>
@@ -657,7 +797,6 @@ async function handleImageSelect(file) {
               ))}
             </div>
           </div>
- 
           <div style={{ flex:1, overflowY:"auto", padding:"10px 13px", display:"flex", flexDirection:"column", gap:9 }}>
             {messages.map((m,i)=>(
               <div key={i} style={{ display:"flex", justifyContent:m.role==="user"?"flex-end":"flex-start" }}>
@@ -667,9 +806,7 @@ async function handleImageSelect(file) {
                 <div className={m.role==="user"?"msg-user":"msg-asst"}
                   style={{ maxWidth:"80%",padding:"10px 13px",borderRadius:15,fontSize:13.5,lineHeight:1.6,
                     ...(m.role==="user"?{borderBottomRightRadius:4}:{borderBottomLeftRadius:4}) }}>
-                  {m.content.split("\n").map((line,li,arr)=>(
-                    <span key={li}>{line}{li<arr.length-1&&<br/>}</span>
-                  ))}
+                  {m.content.split("\n").map((line,li,arr)=>(<span key={li}>{line}{li<arr.length-1&&<br/>}</span>))}
                   {m.macros && (
                     <div style={{ display:"flex",gap:4,marginTop:8,flexWrap:"wrap" }}>
                       <span className="macro-pill" style={{ background:"#fdf2ec",color:"#C97B5A" }}>🥩+{m.macros.proteinas}g</span>
@@ -693,7 +830,6 @@ async function handleImageSelect(file) {
             )}
             <div ref={chatEndRef}/>
           </div>
- 
           <div style={{ padding:"8px 13px",paddingBottom:`calc(env(safe-area-inset-bottom,0px) + 11px)`,background:"white",borderTop:"1px solid #f0ebe4",flexShrink:0 }}>
             {!apiKey && (
               <div style={{ background:"#fdf2ec",border:"1px solid #C97B5A44",borderRadius:9,padding:"7px 11px",marginBottom:7,fontSize:11.5,color:"#C97B5A" }}>
@@ -713,4 +849,3 @@ async function handleImageSelect(file) {
     </div>
   );
 }
- 
